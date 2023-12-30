@@ -32,6 +32,9 @@ var soundKeys = {
 };
 var sounds = {};
 
+// info
+var scoreText;
+
 // game objects
 var player;
 var platforms;
@@ -63,6 +66,16 @@ function create() {
 
     // create background
     this.add.image(400, 220, 'sky');
+
+    // create info
+    var font = { fontSize: '16px', fill: '#fff' };
+    this.add.text(32, 16, 'HIGE', font);
+    this.add.text(32, 32, '000000', font);
+    this.add.text(32 * 6, 32, 'x00', font);
+    this.add.text(288, 16, 'WORLD', font);
+    this.add.text(288, 32, ' 1-1', font);
+    this.add.text(512-32 * 2, 16, 'TIME', font);
+    this.add.text(512-32 * 2, 32, ' 999', font);
 
     // create platforms
     platforms = this.physics.add.staticGroup();
