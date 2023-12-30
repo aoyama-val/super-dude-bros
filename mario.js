@@ -1,10 +1,12 @@
+const CELL_SIZE = 32;
+
 const PLAYER_JUMP_VELOCITY = -450;
 const GRAVITY = 500;
 
 var config = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
+    width: CELL_SIZE * 16,
+    height: CELL_SIZE * 16,
     physics: {
         default: 'arcade',
         arcade: {
@@ -51,27 +53,42 @@ function preload() {
 }
 
 function create() {
-    this.add.image(400, 300, 'sky');
+    // create input
+    cursors = this.input.keyboard.createCursorKeys();
 
-    platforms = this.physics.add.staticGroup();
-    platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-    platforms.create(600, 400, 'ground');
-    platforms.create(50, 250, 'ground');
-    platforms.create(750, 220, 'ground');
-    var x = platforms.create(300, 400, 'item_block');
-    x.is_block = true;
-    console.log(x);
-
-    player = this.physics.add.sprite(400, 450, 'dude');
-    player.setBounce(0.2);
-    player.setCollideWorldBounds(true);
-
+    // create sounds
     for (let key in soundKeys) {
         sounds[key] = this.sound.add(key);
     }
 
+    // create background
+    this.add.image(400, 220, 'sky');
+
+    // create platforms
+    platforms = this.physics.add.staticGroup();
+
+    for (let i = 0; i < 16; i++) {
+        platforms.create(CELL_SIZE * i, CELL_SIZE * 14, 'block').setOrigin(0, 0).refreshBody();
+        platforms.create(CELL_SIZE * i, CELL_SIZE * 15, 'block').setOrigin(0, 0).refreshBody();
+    }
+
+    platforms.create(CELL_SIZE * 4, CELL_SIZE * 9, 'block');
+    
+    var x = platforms.create(CELL_SIZE * 8, CELL_SIZE * 9, 'item_block');
+    x.is_block = true;
+
+    // create mashrooms
+    mashrooms = this.physics.add.group();
+
+    // create player
+    player = this.physics.add.sprite(400, 400, 'dude');
+    player.setBounce(0.2);
+    player.setCollideWorldBounds(true);
+
+    // create colliders
     this.physics.add.collider(player, platforms, hitPlatform, null, this);
 
+    // create animations
     this.anims.create({
         key: 'left',
         frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
@@ -89,10 +106,6 @@ function create() {
         frameRate: 10,
         repeat: -1,
     });
-
-    mashrooms = this.physics.add.group();
-
-    cursors = this.input.keyboard.createCursorKeys();
 }
 
 function update() {
