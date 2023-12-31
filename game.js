@@ -1,7 +1,7 @@
 const CELL_SIZE = 32;
 
-const PLAYER_JUMP_VELOCITY = -450;
-const GRAVITY = 500;
+const PLAYER_JUMP_VELOCITY = -250;
+const GRAVITY = 1000;
 
 const BACK = [
     "                                                                                                                                                           ",
@@ -107,6 +107,7 @@ var enemies;
 var deaths;
 
 var isGameOver = false;
+var jumpStartedTime = -1;
 
 var game = new Phaser.Game(config);
 
@@ -242,7 +243,7 @@ function create() {
 }
 
 var isBossStarted = false;
-function update() {
+function update(time, delta) {
     if (!isBossStarted) {
         if (cursors.left.isDown) {
             player.setVelocityX(-160);
@@ -255,8 +256,17 @@ function update() {
             player.setVelocityX(0);
             player.anims.play('turn');
         }
-        if (cursors.up.isDown && player.body.touching.down) {
-            player.setVelocityY(PLAYER_JUMP_VELOCITY);
+        if (player.body.touching.down) {
+            jumpStartedTime = -1;
+        }
+        if (cursors.up.isDown) {
+            if (player.body.touching.down) {
+                player.setVelocityY(PLAYER_JUMP_VELOCITY);
+                jumpStartedTime = time;
+            } else if (0 <= jumpStartedTime && (time - jumpStartedTime) <= 350) {
+                player.setVelocityY(player.body.velocity.y - 20 * (delta / 16.6));
+                jumpStartedTime += 1;
+            }
         }
 
         // カメラ変更
