@@ -121,9 +121,11 @@ function create() {
         repeat: -1,
     });
 
-    // sounds.boss_bgm.play();
+    this.cameras.main.setBounds(0, 0, CELL_SIZE * 256, CELL_SIZE * 16);
+    this.physics.world.setBounds(0, 0, CELL_SIZE * 256, CELL_SIZE * 16);
+    this.cameras.main.startFollow(player, true, 0.05, 0.05);
 }
-
+// sounds.boss_bgm.play();
 function update() {
     if (cursors.left.isDown) {
         player.setVelocityX(-160);
