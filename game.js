@@ -17,7 +17,7 @@ const BACK = [
     "          C     q   bqbqb                     pp         pp                 bqb               CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC      CCCCCCC             ",
     "                                      pp      pp         pp                                   CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC       CCCCC              ",
     "                            pp        pp      pp         pp                                                                              CCC               ",
-    "                            pp        pp      pp         pp                                                                               C                ",
+    "                      e     pp        pp  e   pp  e e    pp                                                                               C                ",
     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbb",
     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbb",
     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbb",
@@ -87,6 +87,7 @@ var soundKeys = {
     'coin': { files: ['assets/sound/coin.wav'] },
     'block_break': { files: ['assets/sound/break2.wav'] },
     'block_hit': { files: ['assets/sound/block_hit.wav'] },
+    'gameover': { files: ['assets/sound/gameover.wav'] },
     'get_mashroom': { files: ['assets/sound/nya.wav'], options: { volume: 0.3 } },
     'boss_bgm': { files: ['assets/sound/boss_bgm.mp3'], options: { volume: 0.2 } },
 };
@@ -95,6 +96,7 @@ var sounds = {};
 // info
 var scoreText;
 var coinText;
+var score = 0;
 var coinCount = 0;
 var gameOverText;
 
@@ -120,6 +122,7 @@ function preload() {
     this.load.image('pipe', 'assets/pipe.png');
     this.load.image('coin', 'assets/coin.png');
     this.load.image('boss', 'assets/boss.png');
+    this.load.image('enemy', 'assets/enemy.png');
     this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
 
     for (let key in soundKeys) {
@@ -150,10 +153,14 @@ function create() {
     this.add.text(512 - 32 * 2, 16, 'TIME', font).setScrollFactor(0);
     this.add.text(512 - 32 * 2, 32, ' 999', font).setScrollFactor(0);
 
-    // create platforms
+    // create groups
     platforms = this.physics.add.staticGroup();
     deaths = this.physics.add.staticGroup();
+    enemies = this.physics.add.group();
+    mashrooms = this.physics.add.group();
     coins = this.physics.add.group();
+
+    // create platforms
     const createPlatform = (x, y, image) => {
         let platform = platforms.create(CELL_SIZE * x, CELL_SIZE * y, image);
         platform.setOrigin(0, 0).refreshBody();
@@ -165,6 +172,7 @@ function create() {
             switch (BACK[y][x]) {
                 case "b": // ブロック
                     platform = createPlatform(x, y, "block");
+                    platform.is_breakable = true;
                     break;
                 case "q": // はてなブロック
                     platform = createPlatform(x, y, "item_block");
@@ -182,16 +190,18 @@ function create() {
                     break;
                 case "X": // 接触したら死
                     let death = deaths.create(CELL_SIZE * x, CELL_SIZE * y, "death").setOrigin(0, 0).refreshBody();
+                    break;
+                case "e": // 敵
+                    let enemy = enemies.create(CELL_SIZE * x, CELL_SIZE * y, "enemy").setOrigin(0, 0).refreshBody();
+                    enemy.body.setVelocityX(-50);
+                    enemy.setBounceX(1.0);
+                    break;
                 default:
                     continue;
             }
         }
     }
 
-    // create mashrooms
-    mashrooms = this.physics.add.group();
-
-    enemies = this.physics.add.group();
     this.physics.add.collider(enemies, platforms);
     var boss = enemies.create(4800, 1400, 'boss');
     boss.flipX = true;
@@ -210,6 +220,7 @@ function create() {
     this.physics.add.collider(player, platforms, hitPlatform, null, this);
     this.physics.add.overlap(player, coins, collectCoin, null, this);
     this.physics.add.collider(player, deaths, hitDeath, null, this);
+    this.physics.add.collider(player, enemies, hitEnemy, null, this);
     this.physics.add.collider(mashrooms, platforms);
     this.physics.add.collider(boss, platforms);
 
@@ -237,6 +248,9 @@ function create() {
         frameRate: 10,
     });
 
+    player.anims.play('right', true);
+
+    // camera
     this.cameras.main.setBounds(0, 0, CELL_SIZE * STAGE_W, CELL_SIZE * 16);
     this.physics.world.setBounds(0, 0, CELL_SIZE * STAGE_W, CELL_SIZE * STAGE_H);
     this.cameras.main.startFollow(player, true, 0.05, 0.05);
@@ -244,6 +258,9 @@ function create() {
 
 var isBossStarted = false;
 function update(time, delta) {
+    if (isGameOver) {
+        return;
+    }
     if (!isBossStarted) {
         if (cursors.left.isDown) {
             player.setVelocityX(-160);
@@ -254,7 +271,6 @@ function update(time, delta) {
             player.anims.play('right', true);
         } else {
             player.setVelocityX(0);
-            player.anims.play('turn');
         }
         if (player.body.touching.down) {
             jumpStartedTime = -1;
@@ -321,7 +337,7 @@ function hitPlatform(player, platform) {
             mashroom.setBounce(1.0, 0.0); // x方向だけ跳ね返るように
             this.physics.add.collider(mashroom, platforms, hitPlatform, null, this);
             this.physics.add.collider(player, mashroom, hitMashroom, null, this);
-        } else {
+        } else if (platform.is_breakable) {
             sounds.block_break.play();
 
             platform.disableBody(true, true);
@@ -329,25 +345,54 @@ function hitPlatform(player, platform) {
     }
 }
 
-function hitDeath(player, death) {
+function hitEnemy(player, enemy) {
+    // 上から当たったか判定
+    if (player.body.touching.down && enemy.body.touching.up) {
+        enemy.disableBody(true, true);
+        sounds.block_hit.play();
+        score += 100;
+        updateScoreText();
+    } else {
+        setGameOver(this);
+    }
+}
+
+function setGameOver(_this) {
     isGameOver = true;
 
-    const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
-    const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
+    const screenCenterX = _this.cameras.main.worldView.x + _this.cameras.main.width / 2;
+    const screenCenterY = _this.cameras.main.worldView.y + _this.cameras.main.height / 2;
     var font = { fontSize: '32px', fill: '#ff0000' };
-    const loadingText = this.add.text(screenCenterX, screenCenterY, 'GAME OVER', font).setOrigin(0.5);
+    const loadingText = _this.add.text(screenCenterX, screenCenterY, 'GAME OVER', font).setOrigin(0.5);
 
-    this.physics.pause();
+    player.anims.play('turn');
+
+    sounds.gameover.play();
+
+    _this.physics.pause();
+}
+
+function hitDeath(player, death) {
+    setGameOver(this);
 }
 
 function collectCoin(player, coin) {
     coin.disableBody(true, true);
 
+    sounds.coin.play();
+
     coinCount += 1;
+    score += 200;
     if (coinCount >= 100) {
         coinCount = 0;
+        updateScoreText();
     }
     coinText.setText("x" + ("00" + String(coinCount)).slice(-2));
+    updateScoreText();
+}
+
+function updateScoreText() {
+    scoreText.setText(("000000" + String(score)).slice(-6));
 }
 
 function hitMashroom(player, mashroom) {
