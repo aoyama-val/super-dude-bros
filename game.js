@@ -134,6 +134,7 @@ function preload() {
     this.load.image('laser', 'assets/laser.png');
     this.load.image('end', 'assets/end.png');
     this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.atlas('explosion', 'assets/explosion.png', 'assets/explosion.json');
 
     for (let key in soundKeys) {
         this.load.audio(key, soundKeys[key].files);
@@ -261,6 +262,7 @@ function create() {
         frameRate: 10,
     });
 
+    this.anims.create({ key: 'explosion', frames: this.anims.generateFrameNames('explosion', { prefix: 'explosion', end: 63 }), repeat: 0 });
     player.anims.play('right', true);
 
     // camera
@@ -384,8 +386,6 @@ function hitEnemy(player, enemy) {
 }
 
 function weaponHitBoss(boss, weapon) {
-    console.log("bossLife:", bossLife);
-    console.log(weapon);
     weapon.disableBody(true, true);
     boss.setTint(0xff0000);
     this.time.addEvent({
@@ -397,17 +397,22 @@ function weaponHitBoss(boss, weapon) {
     score += 100;
     updateScoreText();
     if (bossLife <= 0) {
-        console.log("boss dead");
         boss.disableBody(true, true);
         this.physics.pause();
+
         sounds.boss_bgm.stop();
         sounds.boss_dead.play();
+
+        const explosion = this.add.sprite(boss.x, boss.y, 'exp').play('explosion', true);
+        explosion.scaleX = 8.0;
+        explosion.scaleY = 8.0;
+
         this.time.addEvent({
             delay: 3000,
             callback: () => {
                 sounds.clear.play();
                 this.time.addEvent({
-                    delay: 10000,
+                    delay: 9000,
                     callback: () => { console.log("THE END"); this.add.image(config.width / 2, config.height / 2, 'end').setScrollFactor(0); }
                 });
             },
