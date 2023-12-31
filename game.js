@@ -85,7 +85,8 @@ var cursors;
 // sound
 var soundKeys = {
     'coin': { files: ['assets/sound/coin.wav'] },
-    'block_break': { files: ['assets/sound/block_break.wav'] },
+    'block_break': { files: ['assets/sound/break2.wav'] },
+    'block_hit': { files: ['assets/sound/block_hit.wav'] },
     'get_mashroom': { files: ['assets/sound/nya.wav'], options: { volume: 0.3 } },
     'boss_bgm': { files: ['assets/sound/boss_bgm.mp3'], options: { volume: 0.2 } },
 };
@@ -119,7 +120,7 @@ function preload() {
     this.load.image('coin', 'assets/coin.png');
     this.load.image('boss', 'assets/boss.png');
     this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
-    
+
     for (let key in soundKeys) {
         this.load.audio(key, soundKeys[key].files);
     }
@@ -159,7 +160,6 @@ function create() {
     };
     for (let y = 0; y < STAGE_H; y++) {
         for (let x = 0; x < STAGE_W; x++) {
-            let image;
             let platform;
             switch (BACK[y][x]) {
                 case "b": // ブロック
@@ -197,14 +197,13 @@ function create() {
     boss.setBounce(1.0);
 
     // create player
-    // player = this.physics.add.sprite(CELL_SIZE * 3.5, CELL_SIZE * 13 + 8, 'dude');
+    player = this.physics.add.sprite(CELL_SIZE * 3.5, CELL_SIZE * 13 + 8, 'dude');
     // fall
-    player = this.physics.add.sprite(CELL_SIZE * 73.5, CELL_SIZE * 13 + 8, 'dude');
+    // player = this.physics.add.sprite(CELL_SIZE * 73.5, CELL_SIZE * 13 + 8, 'dude');
     // boss
     // player = this.physics.add.sprite(CELL_SIZE * 135, CELL_SIZE * 13 + 8, 'dude');
     player.setBounce(0.0);
     player.setCollideWorldBounds(true, undefined, undefined, true);
-    // player.events.onOutOfBounds.add(playerOutOfBounds, this);
 
     // create colliders
     this.physics.add.collider(player, platforms, hitPlatform, null, this);
@@ -240,16 +239,6 @@ function create() {
     this.cameras.main.setBounds(0, 0, CELL_SIZE * STAGE_W, CELL_SIZE * 16);
     this.physics.world.setBounds(0, 0, CELL_SIZE * STAGE_W, CELL_SIZE * STAGE_H);
     this.cameras.main.startFollow(player, true, 0.05, 0.05);
-
-    // 効かない
-    // player.onWorldBounds = function (arg) {
-    //     console.log("out", arg);
-    // };
-    // this.physics.world.on('worldbounds', (body) => {
-    //     console.log("out aa");
-    //     body.gameObject.onWorldBounds();
-    // });
-
 }
 
 var isBossStarted = false;
@@ -308,11 +297,10 @@ function update() {
 }
 
 function hitPlatform(player, platform) {
-    if (platform.has_item) {
-        console.log("has item");
-        // 下から当たったか判定
-        if (player.body.touching.up && platform.body.touching.down) {
-            sounds.block_break.play();
+    // 下から当たったか判定
+    if (player.body.touching.up && platform.body.touching.down) {
+        if (platform.has_item) {
+            sounds.block_hit.play();
 
             platform.disableBody(true, true);
 
@@ -323,6 +311,10 @@ function hitPlatform(player, platform) {
             mashroom.setBounce(1.0, 0.0); // x方向だけ跳ね返るように
             this.physics.add.collider(mashroom, platforms, hitPlatform, null, this);
             this.physics.add.collider(player, mashroom, hitMashroom, null, this);
+        } else {
+            sounds.block_break.play();
+
+            platform.disableBody(true, true);
         }
     }
 }
@@ -352,7 +344,6 @@ function hitMashroom(player, mashroom) {
     sounds.get_mashroom.play();
     mashroom.disableBody(true, true);
 }
-
 
 function playerOutOfBounds(player) {
     console.log("out of bounds");
