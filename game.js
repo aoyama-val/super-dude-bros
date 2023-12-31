@@ -114,11 +114,15 @@ var enemies;
 var deaths;
 var boss;
 var weapons;
+var bullets;
 
 var isGameOver = false;
 var jumpStartedTime = -1;
 var shotTime = -1;
 var bossLife = 3;
+var bossShotTime = -1;
+var bossPattern = 1;    // 0: 攻撃なし  1: 3方向  2: 弾幕
+var bulletsSpawner = undefined;
 
 var game = new Phaser.Game(config);
 
@@ -133,6 +137,7 @@ function preload() {
     this.load.image('boss', 'assets/boss.png');
     this.load.image('enemy', 'assets/enemy.png');
     this.load.image('laser', 'assets/laser.png');
+    this.load.image('bullet', 'assets/bullet.png');
     this.load.image('end', 'assets/end.png');
     this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
     this.load.atlas('explosion', 'assets/explosion.png', 'assets/explosion.json');
@@ -162,6 +167,7 @@ function create() {
     mashrooms = this.physics.add.group();
     coins = this.physics.add.group();
     weapons = this.physics.add.group();
+    bullets = this.physics.add.group();
 
     // create platforms
     const createPlatform = (x, y, image) => {
@@ -349,6 +355,42 @@ function update(time, delta) {
                 shotTime = time;
             }
         }
+        switch (bossPattern) {
+            case 0:
+                break;
+            case 1:
+                if (bossLife > 1) {
+                    if (time - bossShotTime > 500) {
+                        for (let i = 0; i < 3; i++) {
+                            let bullet = bullets.create(boss.x, boss.y, "bullet");
+                            let angle = 150 + 30 * i;
+                            let speed = 200;
+                            bullet.body.setAllowGravity(false);
+                            bullet.body.setVelocityX(speed * Math.cos(deg2rad(angle)));
+                            bullet.body.setVelocityY(speed * Math.sin(deg2rad(angle)));
+                        }
+                        bossShotTime = time;
+                    }
+                } else {
+                    if (bulletsSpawner == undefined) {
+                        boss.setPosition(4800, 1400);
+                        boss.body.setVelocityX(0);
+                        boss.body.setVelocityY(0);
+                        boss.body.setAllowGravity(false);
+                        bulletsSpawner = new BulletSpawner(boss.x, boss.y);
+                    }
+                }
+                break;
+            // case 2:
+            //     if (bulletsSpawner == undefined) {
+            //         bulletsSpawner = new BulletSpawner(boss.x, boss.y);
+            //     }
+            //     break;
+        }
+
+        if (bulletsSpawner != undefined) {
+            bulletsSpawner.update();
+        }
     }
 }
 
@@ -476,4 +518,38 @@ function hitMashroom(player, mashroom) {
 function playerOutOfBounds(player) {
     console.log("out of bounds");
     console.log(player);
+}
+
+function deg2rad(deg) {
+    return Math.PI * (deg / 180.0);
+}
+
+class BulletSpawner {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.frame = -1;
+    }
+
+    update() {
+        this.frame += 1;
+
+        {
+            let bullet = bullets.create(this.x, this.y, "bullet");
+            let angle = 150 + this.frame * 9.1;
+            let speed = 100;
+            bullet.body.setAllowGravity(false);
+            bullet.body.setVelocityX(speed * Math.cos(deg2rad(angle)));
+            bullet.body.setVelocityY(speed * Math.sin(deg2rad(angle)));
+        }
+
+        {
+            let bullet = bullets.create(this.x, this.y, "bullet");
+            let angle = 150 - this.frame * 15.1;
+            let speed = 150;
+            bullet.body.setAllowGravity(false);
+            bullet.body.setVelocityX(speed * Math.cos(deg2rad(angle)));
+            bullet.body.setVelocityY(speed * Math.sin(deg2rad(angle)));
+        }
+    }
 }
