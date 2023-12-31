@@ -21,7 +21,7 @@ const BACK = [
     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbb",
     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbb",
     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbb",
-    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbXXbbbbbbbbbbbbbbbXXXXbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbb",
     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbb",
     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbb",
     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbb",
@@ -61,6 +61,7 @@ const STAGE_W = BACK[0].length;
 const STAGE_H = BACK.length;
 
 var config = {
+    parent: 'game',  // html element id
     type: Phaser.AUTO,
     width: CELL_SIZE * 16,
     height: CELL_SIZE * 16,
@@ -94,6 +95,7 @@ var sounds = {};
 var scoreText;
 var coinText;
 var coinCount = 0;
+var gameOverText;
 
 // game objects
 var player;
@@ -101,6 +103,9 @@ var platforms;
 var mashrooms;
 var coins;
 var enemies;
+var deaths;
+
+var isGameOver = false;
 
 var game = new Phaser.Game(config);
 
@@ -134,7 +139,7 @@ function create() {
 
     // create info
     var font = { fontSize: '16px', fill: '#fff' };
-    this.add.text(32, 16, 'HIGE', font).setScrollFactor(0);
+    this.add.text(32, 16, 'YOU', font).setScrollFactor(0);
     scoreText = this.add.text(32, 32, '000000', font).setScrollFactor(0);
     this.add.image(32 * 5 + 16, 32 + 8, 'coin').setScrollFactor(0);
     coinText = this.add.text(32 * 6, 32, 'x00', font).setScrollFactor(0);
@@ -145,6 +150,7 @@ function create() {
 
     // create platforms
     platforms = this.physics.add.staticGroup();
+    deaths = this.physics.add.staticGroup();
     coins = this.physics.add.group();
     const createPlatform = (x, y, image) => {
         let platform = platforms.create(CELL_SIZE * x, CELL_SIZE * y, image);
@@ -167,12 +173,14 @@ function create() {
                     platform = createPlatform(x, y, "pipe");
                     break;
                 case "C": // コイン
-                    coin = coins.create(CELL_SIZE * x, CELL_SIZE * y, "coin").setOrigin(0, 0).refreshBody()
+                    coin = coins.create(CELL_SIZE * x, CELL_SIZE * y, "coin").setOrigin(0, 0).refreshBody();
                     coin.setImmovable();
                     coin.body.setAllowGravity(false);
                     coin.setBounceY(0);
                     //https://phaser.discourse.group/t/body-onfloor-true-when-overlapping-with-staticgroup-body/1746
                     break;
+                case "X": // 接触したら死
+                    let death = deaths.create(CELL_SIZE * x, CELL_SIZE * y, "death").setOrigin(0, 0).refreshBody();
                 default:
                     continue;
             }
@@ -190,7 +198,10 @@ function create() {
 
     // create player
     // player = this.physics.add.sprite(CELL_SIZE * 3.5, CELL_SIZE * 13 + 8, 'dude');
-    player = this.physics.add.sprite(CELL_SIZE * 135, CELL_SIZE * 13 + 8, 'dude');
+    // fall
+    player = this.physics.add.sprite(CELL_SIZE * 73.5, CELL_SIZE * 13 + 8, 'dude');
+    // boss
+    // player = this.physics.add.sprite(CELL_SIZE * 135, CELL_SIZE * 13 + 8, 'dude');
     player.setBounce(0.0);
     player.setCollideWorldBounds(true, undefined, undefined, true);
     // player.events.onOutOfBounds.add(playerOutOfBounds, this);
@@ -198,6 +209,7 @@ function create() {
     // create colliders
     this.physics.add.collider(player, platforms, hitPlatform, null, this);
     this.physics.add.overlap(player, coins, collectCoin, null, this);
+    this.physics.add.collider(player, deaths, hitDeath, null, this);
     this.physics.add.collider(mashrooms, platforms);
     this.physics.add.collider(boss, platforms);
 
@@ -313,6 +325,17 @@ function hitPlatform(player, platform) {
             this.physics.add.collider(player, mashroom, hitMashroom, null, this);
         }
     }
+}
+
+function hitDeath(player, death) {
+    isGameOver = true;
+
+    const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
+    const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
+    var font = { fontSize: '32px', fill: '#ff0000' };
+    const loadingText = this.add.text(screenCenterX, screenCenterY, 'GAME OVER', font).setOrigin(0.5);
+
+    this.physics.pause();
 }
 
 function collectCoin(player, coin) {
