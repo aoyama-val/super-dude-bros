@@ -40,6 +40,22 @@ const BACK = [
     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbb",
     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbb",
     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb                   b",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb                   b",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb                   b",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb                   b",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb                   b",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb                   b",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb                   b",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb                   b",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb                   b",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb                   b",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb                   b",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb                   b",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb                   b",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb                   b",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
 ];
 const STAGE_W = BACK[0].length;
 const STAGE_H = BACK.length;
@@ -129,7 +145,7 @@ function create() {
 
     // create platforms
     platforms = this.physics.add.staticGroup();
-    coins = this.physics.add.staticGroup();
+    coins = this.physics.add.group();
     const createPlatform = (x, y, image) => {
         let platform = platforms.create(CELL_SIZE * x, CELL_SIZE * y, image);
         platform.setOrigin(0, 0).refreshBody();
@@ -152,6 +168,10 @@ function create() {
                     break;
                 case "C": // コイン
                     coin = coins.create(CELL_SIZE * x, CELL_SIZE * y, "coin").setOrigin(0, 0).refreshBody()
+                    coin.setImmovable();
+                    coin.body.setAllowGravity(false);
+                    coin.setBounceY(0);
+                    //https://phaser.discourse.group/t/body-onfloor-true-when-overlapping-with-staticgroup-body/1746
                     break;
                 default:
                     continue;
@@ -164,19 +184,22 @@ function create() {
 
     enemies = this.physics.add.group();
     this.physics.add.collider(enemies, platforms);
-    var boss = enemies.create(380, 0, 'boss');
+    var boss = enemies.create(4800, 1400, 'boss');
     boss.flipX = true;
+    boss.setBounce(1.0);
 
     // create player
-    player = this.physics.add.sprite(CELL_SIZE * 3.5, CELL_SIZE * 13 + 8, 'dude');
+    // player = this.physics.add.sprite(CELL_SIZE * 3.5, CELL_SIZE * 13 + 8, 'dude');
+    player = this.physics.add.sprite(CELL_SIZE * 135, CELL_SIZE * 13 + 8, 'dude');
     player.setBounce(0.0);
-    // player.setCollideWorldBounds(false, undefined, undefined, true);
+    player.setCollideWorldBounds(true, undefined, undefined, true);
     // player.events.onOutOfBounds.add(playerOutOfBounds, this);
 
     // create colliders
     this.physics.add.collider(player, platforms, hitPlatform, null, this);
     this.physics.add.overlap(player, coins, collectCoin, null, this);
     this.physics.add.collider(mashrooms, platforms);
+    this.physics.add.collider(boss, platforms);
 
     // create animations
     this.anims.create({
@@ -196,6 +219,11 @@ function create() {
         frameRate: 10,
         repeat: -1,
     });
+    this.anims.create({
+        key: 'fly',
+        frames: [{ key: 'dude', frame: 5 }],
+        frameRate: 10,
+    });
 
     this.cameras.main.setBounds(0, 0, CELL_SIZE * STAGE_W, CELL_SIZE * 16);
     this.physics.world.setBounds(0, 0, CELL_SIZE * STAGE_W, CELL_SIZE * STAGE_H);
@@ -210,26 +238,60 @@ function create() {
     //     body.gameObject.onWorldBounds();
     // });
 
-    // sounds.boss_bgm.play();
 }
+
+var isBossStarted = false;
 function update() {
-    // if (player.body.x < 0) {
-    //     player.setVelocityX(0);
-    //     player.body.x = 0;
-    // }
-    if (cursors.left.isDown) {
-        player.setVelocityX(-160);
-        player.anims.play('left', true);
-        console.log(player.body.x, player.body.y);
-    } else if (cursors.right.isDown) {
-        player.setVelocityX(160);
-        player.anims.play('right', true);
+    if (!isBossStarted) {
+        if (cursors.left.isDown) {
+            player.setVelocityX(-160);
+            player.anims.play('left', true);
+            console.log(player.body.x, player.body.y);
+        } else if (cursors.right.isDown) {
+            player.setVelocityX(160);
+            player.anims.play('right', true);
+        } else {
+            player.setVelocityX(0);
+            player.anims.play('turn');
+        }
+        if (cursors.up.isDown && player.body.touching.down) {
+            player.setVelocityY(PLAYER_JUMP_VELOCITY);
+        }
+
+        // カメラ変更
+        if (player.body.y > CELL_SIZE * 16) {
+            this.cameras.main.setBounds(0, 0, CELL_SIZE * STAGE_W, CELL_SIZE * STAGE_H);
+        }
+
+        if (player.body.y > 1500 && player.body.x > 4500) {
+            // BGM変更
+            sounds.boss_bgm.loop = true;
+            // sounds.boss_bgm.play();
+
+            //this.cameras.main.setPosition(CELL_SIZE * 130, CELL_SIZE * 45);
+            console.log(this.cameras.main.toJSON());
+
+            // プレイヤー挙動変更
+            player.anims.play('fly');
+            player.setVelocityX(0);
+            player.setVelocityY(0);
+            player.body.setAllowGravity(false);
+
+            isBossStarted = true;
+        }
     } else {
-        player.setVelocityX(0);
-        player.anims.play('turn');
-    }
-    if (cursors.up.isDown && player.body.touching.down) {
-        player.setVelocityY(PLAYER_JUMP_VELOCITY);
+        if (cursors.up.isDown) {
+            player.setVelocityY(-160);
+        } else if (cursors.down.isDown) {
+            player.setVelocityY(160);
+        } else if (cursors.left.isDown) {
+            player.setVelocityX(-160);
+        } else if (cursors.right.isDown) {
+            player.setVelocityX(160);
+        } else {
+            player.setVelocityX(0);
+            player.setVelocityY(0);
+        }
     }
 }
 
