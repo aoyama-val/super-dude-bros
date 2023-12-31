@@ -89,6 +89,8 @@ var soundKeys = {
     'block_break': { files: ['assets/sound/break2.wav'] },
     'block_hit': { files: ['assets/sound/block_hit.wav'] },
     'gameover': { files: ['assets/sound/gameover.wav'] },
+    'laser': { files: ['assets/sound/laser.wav'] },
+    'clear': { files: ['assets/sound/clear.wav'] },
     'get_mashroom': { files: ['assets/sound/nya.wav'], options: { volume: 0.3 } },
     'boss_bgm': { files: ['assets/sound/boss_bgm.mp3'], options: { volume: 0.2 } },
 };
@@ -109,9 +111,12 @@ var coins;
 var enemies;
 var deaths;
 var boss;
+var weapons;
 
 var isGameOver = false;
 var jumpStartedTime = -1;
+var shotTime = -1;
+var bossLife = 3;
 
 var game = new Phaser.Game(config);
 
@@ -125,6 +130,8 @@ function preload() {
     this.load.image('coin', 'assets/coin.png');
     this.load.image('boss', 'assets/boss.png');
     this.load.image('enemy', 'assets/enemy.png');
+    this.load.image('laser', 'assets/laser.png');
+    this.load.image('end', 'assets/end.png');
     this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
 
     for (let key in soundKeys) {
@@ -162,6 +169,7 @@ function create() {
     enemies = this.physics.add.group();
     mashrooms = this.physics.add.group();
     coins = this.physics.add.group();
+    weapons = this.physics.add.group();
 
     // create platforms
     const createPlatform = (x, y, image) => {
@@ -208,7 +216,7 @@ function create() {
     this.physics.add.collider(enemies, platforms);
     boss = enemies.create(4800, 1400, 'boss');
     boss.flipX = true;
-    boss.setBounce(1.0);
+    boss.setBounce(0.0, 1.0);
 
     // create player
     // player = this.physics.add.sprite(CELL_SIZE * 3.5, CELL_SIZE * 13 + 8, 'dude');
@@ -226,6 +234,7 @@ function create() {
     this.physics.add.collider(player, enemies, hitEnemy, null, this);
     this.physics.add.collider(mashrooms, platforms);
     this.physics.add.collider(boss, platforms);
+    this.physics.add.overlap(weapons, boss, weaponHitBoss, null, this);
 
     // create animations
     this.anims.create({
@@ -297,7 +306,7 @@ function update(time, delta) {
         if (player.body.y > 1500 && player.body.x > 4500) {
             // BGM変更
             sounds.boss_bgm.loop = true;
-            // sounds.boss_bgm.play();
+            sounds.boss_bgm.play();
 
             //this.cameras.main.setPosition(CELL_SIZE * 130, CELL_SIZE * 45);
             console.log(this.cameras.main.toJSON());
@@ -327,10 +336,15 @@ function update(time, delta) {
             player.setVelocityY(0);
         }
         if (keyShot.isDown) {
-            boss.setTint(0xff0000);
-        } else {
-            boss.setTint(0xffffff);
+            if (time - shotTime > 200) {
+                let weapon = weapons.create(player.body.x, player.body.y, "laser");
+                weapon.body.setAllowGravity(false);
+                weapon.body.setVelocityX(550);
+                sounds.laser.play();
+                shotTime = time;
+            }
         }
+        boss.setTint(0xffffff);
     }
 }
 
@@ -366,6 +380,25 @@ function hitEnemy(player, enemy) {
         updateScoreText();
     } else {
         setGameOver(this);
+    }
+}
+
+function weaponHitBoss(boss, weapon) {
+    console.log("bossLife:", bossLife);
+    console.log(weapon);
+    weapon.disableBody(true, true);
+    boss.setTint(0xff0000);
+    bossLife -= 1;
+    if (bossLife <= 0) {
+        console.log("boss dead");
+        boss.disableBody(true, true);
+        this.physics.pause();
+        sounds.boss_bgm.stop();
+        sounds.clear.play();
+        this.time.addEvent({
+            delay: 10000,
+            callback: () => { console.log("THE END"); this.add.image(config.width / 2, config.height / 2, 'end').setScrollFactor(0); }
+        });
     }
 }
 
