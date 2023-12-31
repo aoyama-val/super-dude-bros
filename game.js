@@ -130,7 +130,9 @@ function create() {
     platforms = this.physics.add.staticGroup();
     coins = this.physics.add.staticGroup();
     const createPlatform = (x, y, image) => {
-        return platforms.create(CELL_SIZE * x, CELL_SIZE * y, image).setOrigin(0, 0).refreshBody();
+        let platform = platforms.create(CELL_SIZE * x, CELL_SIZE * y, image);
+        platform.setOrigin(0, 0).refreshBody();
+        return platform;
     };
     for (let y = 0; y < STAGE_H; y++) {
         for (let x = 0; x < STAGE_W; x++) {
@@ -227,9 +229,9 @@ function update() {
 
 function hitPlatform(player, platform) {
     if (platform.has_item) {
-        let playerCenter = player.body.x + player.body.width / 2;
+        console.log("has item");
         // 下から当たったか判定
-        if (player.body.velocity.y > 0 && platform.body.left <= playerCenter && playerCenter && platform.body.right) {
+        if (player.body.touching.up && platform.body.touching.down) {
             sounds.block_break.play();
 
             platform.disableBody(true, true);
