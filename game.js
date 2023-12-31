@@ -96,6 +96,7 @@ function preload() {
     this.load.image('item_block', 'assets/item_block.png');
     this.load.image('pipe', 'assets/pipe.png');
     this.load.image('coin', 'assets/coin.png');
+    this.load.image('boss', 'assets/boss.png');
     this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
     
     for (let key in soundKeys) {
@@ -160,6 +161,11 @@ function create() {
 
     // create mashrooms
     mashrooms = this.physics.add.group();
+
+    enemies = this.physics.add.group();
+    this.physics.add.collider(enemies, platforms);
+    var boss = enemies.create(380, 0, 'boss');
+    boss.flipX = true;
 
     // create player
     player = this.physics.add.sprite(CELL_SIZE * 3.5, CELL_SIZE * 13 + 8, 'dude');
