@@ -9,15 +9,15 @@ const BACK = [
     "                                                                                                                                                           ",
     "                                                                                                                                                           ",
     "                                                                                                                                                           ",
-    "                                                                                                                               CCCCCCCCCCCCC               ",
-    "                      q                                                                                                        CCCCCCCCCCCCC               ",
-    "                                                                                                                               CC         CC               ",
-    "                                                                                                                               CC         CC               ",
-    "                                                                                                                               CC         CC               ",
-    "          C     q   bqbqb                     pp         pp                 bqb               CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC      CCCCCCC             ",
-    "                                      pp      pp         pp                                   CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC       CCCCC              ",
-    "                            pp        pp      pp         pp                                                                              CCC               ",
-    "                      e     pp        pp  e   pp  e e    pp                                                                               C                ",
+    "                                                                                                                               CCCCCCCCCCCCCC              ",
+    "                      q                                                                                                        CCCCCCCCCCCCCC              ",
+    "                                                                                                                               CC         CCC              ",
+    "                                                                                                                               CC         CCC              ",
+    "                                                                                                                               CC         CCC              ",
+    "          C     q   bqbqb                     pp         pp                 bqb               CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC       CCCCCCC            ",
+    "                                      pp      pp         pp                                   CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC        CCCCC             ",
+    "                            pp        pp      pp         pp                                                                               CCC              ",
+    "                      e     pp        pp  e   pp  e e    pp                                                                                C               ",
     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbb",
     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbb",
     "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbb",
@@ -64,7 +64,7 @@ var config = {
     parent: 'game',  // html element id
     type: Phaser.AUTO,
     width: CELL_SIZE * 16,
-    height: CELL_SIZE * 16,
+    height: CELL_SIZE * 15,
     physics: {
         default: 'arcade',
         arcade: {
@@ -81,6 +81,7 @@ var config = {
 
 // input
 var cursors;
+var keyShot;
 
 // sound
 var soundKeys = {
@@ -107,6 +108,7 @@ var mashrooms;
 var coins;
 var enemies;
 var deaths;
+var boss;
 
 var isGameOver = false;
 var jumpStartedTime = -1;
@@ -133,6 +135,7 @@ function preload() {
 function create() {
     // create input
     cursors = this.input.keyboard.createCursorKeys();
+    keyShot = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
 
     // create sounds
     for (let key in soundKeys) {
@@ -203,16 +206,16 @@ function create() {
     }
 
     this.physics.add.collider(enemies, platforms);
-    var boss = enemies.create(4800, 1400, 'boss');
+    boss = enemies.create(4800, 1400, 'boss');
     boss.flipX = true;
     boss.setBounce(1.0);
 
     // create player
-    player = this.physics.add.sprite(CELL_SIZE * 3.5, CELL_SIZE * 13 + 8, 'dude');
+    // player = this.physics.add.sprite(CELL_SIZE * 3.5, CELL_SIZE * 13 + 8, 'dude');
     // fall
     // player = this.physics.add.sprite(CELL_SIZE * 73.5, CELL_SIZE * 13 + 8, 'dude');
     // boss
-    // player = this.physics.add.sprite(CELL_SIZE * 135, CELL_SIZE * 13 + 8, 'dude');
+    player = this.physics.add.sprite(CELL_SIZE * 135, CELL_SIZE * 13 + 8, 'dude');
     player.setBounce(0.0);
     player.setCollideWorldBounds(true, undefined, undefined, true);
 
@@ -262,6 +265,7 @@ function update(time, delta) {
         return;
     }
     if (!isBossStarted) {
+        // 通常モード
         if (cursors.left.isDown) {
             player.setVelocityX(-160);
             player.anims.play('left', true);
@@ -307,6 +311,7 @@ function update(time, delta) {
             isBossStarted = true;
         }
     } else {
+        // ボスモード
         if (cursors.up.isDown) {
             player.setVelocityY(-160);
         } else if (cursors.down.isDown) {
@@ -315,9 +320,16 @@ function update(time, delta) {
             player.setVelocityX(-160);
         } else if (cursors.right.isDown) {
             player.setVelocityX(160);
+        } else if (cursors.right.isDown) {
+            player.setVelocityX(160);
         } else {
             player.setVelocityX(0);
             player.setVelocityY(0);
+        }
+        if (keyShot.isDown) {
+            boss.setTint(0xff0000);
+        } else {
+            boss.setTint(0xffffff);
         }
     }
 }
