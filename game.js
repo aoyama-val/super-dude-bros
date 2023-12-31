@@ -93,6 +93,7 @@ var soundKeys = {
     'clear': { files: ['assets/sound/clear.wav'] },
     'get_mashroom': { files: ['assets/sound/nya.wav'], options: { volume: 0.3 } },
     'boss_bgm': { files: ['assets/sound/boss_bgm.mp3'], options: { volume: 0.2 } },
+    'boss_dead': { files: ['assets/sound/boss_dead.mp3'] },
 };
 var sounds = {};
 
@@ -344,7 +345,6 @@ function update(time, delta) {
                 shotTime = time;
             }
         }
-        boss.setTint(0xffffff);
     }
 }
 
@@ -388,16 +388,29 @@ function weaponHitBoss(boss, weapon) {
     console.log(weapon);
     weapon.disableBody(true, true);
     boss.setTint(0xff0000);
+    this.time.addEvent({
+        delay: 20,
+        callback: () => { boss.setTint(0xffffff) },
+    });
+
     bossLife -= 1;
+    score += 100;
+    updateScoreText();
     if (bossLife <= 0) {
         console.log("boss dead");
         boss.disableBody(true, true);
         this.physics.pause();
         sounds.boss_bgm.stop();
-        sounds.clear.play();
+        sounds.boss_dead.play();
         this.time.addEvent({
-            delay: 10000,
-            callback: () => { console.log("THE END"); this.add.image(config.width / 2, config.height / 2, 'end').setScrollFactor(0); }
+            delay: 3000,
+            callback: () => {
+                sounds.clear.play();
+                this.time.addEvent({
+                    delay: 10000,
+                    callback: () => { console.log("THE END"); this.add.image(config.width / 2, config.height / 2, 'end').setScrollFactor(0); }
+                });
+            },
         });
     }
 }
