@@ -3,6 +3,47 @@ const CELL_SIZE = 32;
 const PLAYER_JUMP_VELOCITY = -450;
 const GRAVITY = 500;
 
+const BACK = [
+    "                                                                                                                                                                                                                                                                ",
+    "                                                                                                                                                                                                                                                                ",
+    "                                                                                                                                                                                                                                                                ",
+    "                                                                                                                                                                                                                                                                ",
+    "                                                                                                                                                                                                                                                                ",
+    "                                                                                                                                                                                                                                                                ",
+    "                      q                                                                                                                      CCCCCCCCCCCCC                                                                                                      ",
+    "                                                                                                                                             CC         CC                                                                                                      ",
+    "                                                                                                                                             CC         CC                                                                                                      ",
+    "                                                                                                                                             CC         CC                                                                                                      ",
+    "          C     q   bqbqb                     pp         pp                 bqb               CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC      CCCCCCCC                                                                                                   ",
+    "                                      pp      pp         pp                                   CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC       CCCCCC                                                                                                    ",
+    "                            pp        pp      pp         pp                                                                                            CCC                                                                                                      ",
+    "                            pp        pp      pp         pp                                                                                             C                                                                                                       ",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  bbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+];
+const STAGE_W = BACK[0].length;
+const STAGE_H = BACK.length;
+
 var config = {
     type: Phaser.AUTO,
     width: CELL_SIZE * 16,
@@ -28,18 +69,22 @@ var cursors;
 var soundKeys = {
     'coin': { files: ['assets/sound/coin.wav'] },
     'block_break': { files: ['assets/sound/block_break.wav'] },
-    'get_mashroom': { files: ['assets/sound/nya.wav'] },
+    'get_mashroom': { files: ['assets/sound/nya.wav'], options: { volume: 0.3 } },
     'boss_bgm': { files: ['assets/sound/boss_bgm.mp3'], options: { volume: 0.2 } },
 };
 var sounds = {};
 
 // info
 var scoreText;
+var coinText;
+var coinCount = 0;
 
 // game objects
 var player;
 var platforms;
 var mashrooms;
+var coins;
+var enemies;
 
 var game = new Phaser.Game(config);
 
@@ -49,6 +94,8 @@ function preload() {
     this.load.image('mashroom', 'assets/star.png');
     this.load.image('block', 'assets/block.png');
     this.load.image('item_block', 'assets/item_block.png');
+    this.load.image('pipe', 'assets/pipe.png');
+    this.load.image('coin', 'assets/coin.png');
     this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
     
     for (let key in soundKeys) {
@@ -66,13 +113,13 @@ function create() {
     }
 
     // create background
-    this.add.image(400, 220, 'sky');
+    this.add.tileSprite(400, 300, 10000, 600, 'sky');
 
     // create info
     var font = { fontSize: '16px', fill: '#fff' };
     this.add.text(32, 16, 'HIGE', font);
-    this.add.text(32, 32, '000000', font);
-    this.add.text(32 * 6, 32, 'x00', font);
+    scoreText = this.add.text(32, 32, '000000', font);
+    coinText = this.add.text(32 * 6, 32, 'x00', font);
     this.add.text(288, 16, 'WORLD', font);
     this.add.text(288, 32, ' 1-1', font);
     this.add.text(512-32 * 2, 16, 'TIME', font);
@@ -80,27 +127,45 @@ function create() {
 
     // create platforms
     platforms = this.physics.add.staticGroup();
-
-    for (let i = 0; i < 16; i++) {
-        platforms.create(CELL_SIZE * i, CELL_SIZE * 14, 'block').setOrigin(0, 0).refreshBody();
-        platforms.create(CELL_SIZE * i, CELL_SIZE * 15, 'block').setOrigin(0, 0).refreshBody();
+    coins = this.physics.add.staticGroup();
+    const createPlatform = (x, y, image) => {
+        return platforms.create(CELL_SIZE * x, CELL_SIZE * y, image).setOrigin(0, 0).refreshBody();
+    };
+    for (let y = 0; y < STAGE_H; y++) {
+        for (let x = 0; x < STAGE_W; x++) {
+            let image;
+            let platform;
+            switch (BACK[y][x]) {
+                case "b": // ブロック
+                    platform = createPlatform(x, y, "block");
+                    break;
+                case "q": // はてなブロック
+                    platform = createPlatform(x, y, "item_block");
+                    break;
+                case "p": // パイプ
+                    platform = createPlatform(x, y, "pipe");
+                    platform.is_block = true;
+                    break;
+                case "C": // コイン
+                    coin = coins.create(CELL_SIZE * x, CELL_SIZE * y, "coin").setOrigin(0, 0).refreshBody()
+                    break;
+                default:
+                    continue;
+            }
+        }
     }
-
-    platforms.create(CELL_SIZE * 4, CELL_SIZE * 9, 'block');
-    
-    var x = platforms.create(CELL_SIZE * 8, CELL_SIZE * 9, 'item_block');
-    x.is_block = true;
 
     // create mashrooms
     mashrooms = this.physics.add.group();
 
     // create player
-    player = this.physics.add.sprite(400, 400, 'dude');
+    player = this.physics.add.sprite(CELL_SIZE * 3.5, CELL_SIZE * 13 + 8, 'dude');
     player.setBounce(0.2);
-    player.setCollideWorldBounds(true);
-
+    // player.setCollideWorldBounds(false, undefined, undefined, true);
+    // player.events.onOutOfBounds.add(playerOutOfBounds, this);
     // create colliders
     this.physics.add.collider(player, platforms, hitPlatform, null, this);
+    this.physics.add.overlap(player, coins, collectCoin, null, this);
 
     // create animations
     this.anims.create({
@@ -121,15 +186,30 @@ function create() {
         repeat: -1,
     });
 
-    this.cameras.main.setBounds(0, 0, CELL_SIZE * 256, CELL_SIZE * 16);
-    this.physics.world.setBounds(0, 0, CELL_SIZE * 256, CELL_SIZE * 16);
+    this.cameras.main.setBounds(0, 0, CELL_SIZE * STAGE_W, CELL_SIZE * 16);
+    this.physics.world.setBounds(0, 0, CELL_SIZE * STAGE_W, CELL_SIZE * STAGE_H);
     this.cameras.main.startFollow(player, true, 0.05, 0.05);
+
+    // 効かない
+    // player.onWorldBounds = function (arg) {
+    //     console.log("out", arg);
+    // };
+    // this.physics.world.on('worldbounds', (body) => {
+    //     console.log("out aa");
+    //     body.gameObject.onWorldBounds();
+    // });
+
+    // sounds.boss_bgm.play();
 }
-// sounds.boss_bgm.play();
 function update() {
+    // if (player.body.x < 0) {
+    //     player.setVelocityX(0);
+    //     player.body.x = 0;
+    // }
     if (cursors.left.isDown) {
         player.setVelocityX(-160);
         player.anims.play('left', true);
+        console.log(player.body.x, player.body.y);
     } else if (cursors.right.isDown) {
         player.setVelocityX(160);
         player.anims.play('right', true);
@@ -161,7 +241,24 @@ function hitPlatform(player, platform) {
     }
 }
 
+
+function collectCoin(player, coin) {
+    coin.disableBody(true, true);
+
+    coinCount += 1;
+    if (coinCount >= 100) {
+        coinCount = 0;
+    }
+    coinText.setText("x" + ("00" + String(coinCount)).slice(-2));
+}
+
 function hitMashroom(player, mashroom) {
     sounds.get_mashroom.play();
     mashroom.disableBody(true, true);
+}
+
+
+function playerOutOfBounds(player) {
+    console.log("out of bounds");
+    console.log(player);
 }
