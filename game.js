@@ -101,6 +101,7 @@ var sounds = {};
 var scoreText;
 var coinText;
 var score = 0;
+var displayingScore = 0;
 var coinCount = 0;
 var gameOverText;
 
@@ -153,17 +154,6 @@ function create() {
 
     // create background
     this.add.tileSprite(400, 300, 10000, 600, 'sky');
-
-    // create info
-    var font = { fontSize: '16px', fill: '#fff' };
-    this.add.text(32, 16, 'YOU', font).setScrollFactor(0);
-    scoreText = this.add.text(32, 32, '000000', font).setScrollFactor(0);
-    this.add.image(32 * 5 + 16, 32 + 8, 'coin').setScrollFactor(0);
-    coinText = this.add.text(32 * 6, 32, 'x00', font).setScrollFactor(0);
-    this.add.text(288, 16, 'WORLD', font).setScrollFactor(0);
-    this.add.text(288, 32, ' 1-1', font).setScrollFactor(0);
-    this.add.text(512 - 32 * 2, 16, 'TIME', font).setScrollFactor(0);
-    this.add.text(512 - 32 * 2, 32, ' 999', font).setScrollFactor(0);
 
     // create groups
     platforms = this.physics.add.staticGroup();
@@ -265,6 +255,17 @@ function create() {
     this.anims.create({ key: 'explosion', frames: this.anims.generateFrameNames('explosion', { prefix: 'explosion', end: 63 }), repeat: 0 });
     player.anims.play('right', true);
 
+    // create info
+    var font = { fontSize: '16px', fill: '#fff' };
+    this.add.text(32, 16, 'YOU', font).setScrollFactor(0);
+    scoreText = this.add.text(32, 32, '000000', font).setScrollFactor(0);
+    this.add.image(32 * 5 + 16, 32 + 8, 'coin').setScrollFactor(0);
+    coinText = this.add.text(32 * 6, 32, 'x00', font).setScrollFactor(0);
+    this.add.text(288, 16, 'WORLD', font).setScrollFactor(0);
+    this.add.text(288, 32, ' 1-1', font).setScrollFactor(0);
+    this.add.text(512 - 32 * 2, 16, 'TIME', font).setScrollFactor(0);
+    this.add.text(512 - 32 * 2, 32, ' 999', font).setScrollFactor(0);
+
     // camera
     this.cameras.main.setBounds(0, 0, CELL_SIZE * STAGE_W, CELL_SIZE * 16);
     this.physics.world.setBounds(0, 0, CELL_SIZE * STAGE_W, CELL_SIZE * STAGE_H);
@@ -276,6 +277,7 @@ function update(time, delta) {
     if (isGameOver) {
         return;
     }
+    updateScoreText();
     if (!isBossStarted) {
         // 通常モード
         if (cursors.left.isDown) {
@@ -379,7 +381,6 @@ function hitEnemy(player, enemy) {
         enemy.disableBody(true, true);
         sounds.block_hit.play();
         score += 100;
-        updateScoreText();
     } else {
         setGameOver(this);
     }
@@ -395,7 +396,6 @@ function weaponHitBoss(boss, weapon) {
 
     bossLife -= 1;
     score += 100;
-    updateScoreText();
     if (bossLife <= 0) {
         boss.disableBody(true, true);
         this.physics.pause();
@@ -411,9 +411,15 @@ function weaponHitBoss(boss, weapon) {
             delay: 3000,
             callback: () => {
                 sounds.clear.play();
+
+                score += 500000;
+
                 this.time.addEvent({
-                    delay: 9000,
-                    callback: () => { console.log("THE END"); this.add.image(config.width / 2, config.height / 2, 'end').setScrollFactor(0); }
+                    delay: 8500,
+                    callback: () => {
+                        // THE END
+                        this.add.image(config.width / 2, config.height / 2, 'end').setScrollFactor(0);
+                    }
                 });
             },
         });
@@ -448,14 +454,18 @@ function collectCoin(player, coin) {
     score += 200;
     if (coinCount >= 100) {
         coinCount = 0;
-        updateScoreText();
     }
     coinText.setText("x" + ("00" + String(coinCount)).slice(-2));
-    updateScoreText();
 }
 
 function updateScoreText() {
-    scoreText.setText(("000000" + String(score)).slice(-6));
+    if (displayingScore < score) {
+        displayingScore += 1000;
+        if (displayingScore > score) {
+            displayingScore = score;
+        }
+        scoreText.setText(("000000" + String(displayingScore)).slice(-6));
+    }
 }
 
 function hitMashroom(player, mashroom) {
