@@ -26,9 +26,10 @@ var cursors;
 
 // sound
 var soundKeys = {
-    'coin'        : [ 'assets/sound/coin.wav' ],
-    'block_break' : [ 'assets/sound/block_break.wav' ],
-    'get_mashroom' : [ 'assets/sound/nya.wav' ],
+    'coin': { files: ['assets/sound/coin.wav'] },
+    'block_break': { files: ['assets/sound/block_break.wav'] },
+    'get_mashroom': { files: ['assets/sound/nya.wav'] },
+    'boss_bgm': { files: ['assets/sound/boss_bgm.mp3'], options: { volume: 0.2 } },
 };
 var sounds = {};
 
@@ -51,7 +52,7 @@ function preload() {
     this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
     
     for (let key in soundKeys) {
-        this.load.audio(key, soundKeys[key]);
+        this.load.audio(key, soundKeys[key].files);
     }
 }
 
@@ -61,7 +62,7 @@ function create() {
 
     // create sounds
     for (let key in soundKeys) {
-        sounds[key] = this.sound.add(key);
+        sounds[key] = this.sound.add(key, soundKeys[key].options);
     }
 
     // create background
@@ -119,6 +120,8 @@ function create() {
         frameRate: 10,
         repeat: -1,
     });
+
+    // sounds.boss_bgm.play();
 }
 
 function update() {
