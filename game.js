@@ -370,8 +370,8 @@ function update(time, delta) {
                             let angle = 150 + 30 * i;
                             let speed = 200;
                             bullet.body.setAllowGravity(false);
-                            bullet.body.setVelocityX(speed * Math.cos(deg2rad(angle)));
-                            bullet.body.setVelocityY(speed * Math.sin(deg2rad(angle)));
+                            bullet.body.setVelocityX(speed * Math.cos(Phaser.Math.DegToRad(angle)));
+                            bullet.body.setVelocityY(speed * Math.sin(Phaser.Math.DegToRad(angle)));
                         }
                         bossShotTime = time;
                     }
@@ -530,10 +530,6 @@ function playerOutOfBounds(player) {
     console.log(player);
 }
 
-function deg2rad(deg) {
-    return Math.PI * (deg / 180.0);
-}
-
 class BulletSpawner {
     constructor(x, y) {
         this.x = x;
@@ -549,8 +545,8 @@ class BulletSpawner {
             let angle = 150 + this.frame * 9.1;
             let speed = 100;
             bullet.body.setAllowGravity(false);
-            bullet.body.setVelocityX(speed * Math.cos(deg2rad(angle)));
-            bullet.body.setVelocityY(speed * Math.sin(deg2rad(angle)));
+            bullet.body.setVelocityX(speed * Math.cos(Phaser.Math.DegToRad(angle)));
+            bullet.body.setVelocityY(speed * Math.sin(Phaser.Math.DegToRad(angle)));
         }
 
         {
@@ -558,8 +554,8 @@ class BulletSpawner {
             let angle = 150 - this.frame * 15.1;
             let speed = 150;
             bullet.body.setAllowGravity(false);
-            bullet.body.setVelocityX(speed * Math.cos(deg2rad(angle)));
-            bullet.body.setVelocityY(speed * Math.sin(deg2rad(angle)));
+            bullet.body.setVelocityX(speed * Math.cos(Phaser.Math.DegToRad(angle)));
+            bullet.body.setVelocityY(speed * Math.sin(Phaser.Math.DegToRad(angle)));
         }
     }
 }
