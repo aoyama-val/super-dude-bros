@@ -140,7 +140,7 @@ function preload() {
     this.load.image('bullet', 'assets/bullet.png');
     this.load.image('end', 'assets/end.png');
     this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
-    this.load.atlas('explosion', 'assets/explosion.png', 'assets/explosion.json');
+    this.load.spritesheet('explosion', 'assets/explosion.png', { frameWidth: 32, frameHeight: 32 });
 
     for (let key in soundKeys) {
         this.load.audio(key, soundKeys[key].files);
@@ -258,7 +258,7 @@ function create() {
         frameRate: 10,
     });
 
-    this.anims.create({ key: 'explosion', frames: this.anims.generateFrameNames('explosion', { prefix: 'explosion', end: 63 }), repeat: 0 });
+    this.anims.create({ key: 'explosion', frames: this.anims.generateFrameNames('explosion'), repeat: 0 });
     player.anims.play('right', true);
 
     // create info
