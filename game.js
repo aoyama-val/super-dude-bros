@@ -115,6 +115,7 @@ var deaths;
 var boss;
 var weapons;
 var bullets;
+var sky;
 
 var isGameOver = false;
 var jumpStartedTime = -1;
@@ -158,7 +159,7 @@ function create() {
     }
 
     // create background
-    this.add.tileSprite(400, 300, 10000, 600, 'sky');
+    sky = this.add.tileSprite(400, 300, 800, 600, 'sky');
 
     // create groups
     platforms = this.physics.add.staticGroup();
@@ -283,7 +284,11 @@ function update(time, delta) {
     if (isGameOver) {
         return;
     }
+
     updateScoreText();
+
+    sky.x = 400 + this.cameras.main.scrollX; // カメラにスクロールに合わせて背景を移動させることで、常に同じ背景を表示する
+
     if (!isBossStarted) {
         // 通常モード
         if (cursors.left.isDown) {
