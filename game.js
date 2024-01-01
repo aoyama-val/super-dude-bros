@@ -119,7 +119,7 @@ var bullets;
 var isGameOver = false;
 var jumpStartedTime = -1;
 var shotTime = -1;
-var bossLife = 3;
+var bossLife = 165;
 var bossShotTime = -1;
 var bossPattern = 1;    // 0: 攻撃なし  1: 3方向  2: 弾幕
 var bulletsSpawner = undefined;
@@ -217,11 +217,11 @@ function create() {
     boss.setBounce(0.0, 1.0);
 
     // create player
-    // player = this.physics.add.sprite(CELL_SIZE * 3.5, CELL_SIZE * 13 + 8, 'dude');
+    player = this.physics.add.sprite(CELL_SIZE * 3.5, CELL_SIZE * 13 + 8, 'dude');
     // fall
     // player = this.physics.add.sprite(CELL_SIZE * 73.5, CELL_SIZE * 13 + 8, 'dude');
     // boss
-    player = this.physics.add.sprite(CELL_SIZE * 135, CELL_SIZE * 13 + 8, 'dude');
+    // player = this.physics.add.sprite(CELL_SIZE * 135, CELL_SIZE * 13 + 8, 'dude');
     player.setBounce(0.0);
     player.setCollideWorldBounds(true, undefined, undefined, true);
 
@@ -314,13 +314,15 @@ function update(time, delta) {
             this.cameras.main.setBounds(0, 0, CELL_SIZE * STAGE_W, CELL_SIZE * STAGE_H);
         }
 
-        if (player.body.y > 1500 && player.body.x > 4500) {
+        if (player.body.y > 1400 && player.body.x > 4500) {
             // BGM変更
             sounds.boss_bgm.loop = true;
             sounds.boss_bgm.play();
 
-            //this.cameras.main.setPosition(CELL_SIZE * 130, CELL_SIZE * 45);
-            console.log(this.cameras.main.toJSON());
+            // カメラ
+            this.cameras.main.stopFollow();
+            this.cameras.main.pan(4650, 1450);
+            // console.log(this.cameras.main.toJSON());
 
             // プレイヤー挙動変更
             player.anims.play('fly');
@@ -329,6 +331,7 @@ function update(time, delta) {
             player.body.setAllowGravity(false);
 
             isBossStarted = true;
+            bossShotTime = time + 2500;  // 少し遅らせて撃ち始めるように
         }
     } else {
         // ボスモード
@@ -337,6 +340,7 @@ function update(time, delta) {
         } else if (cursors.down.isDown) {
             player.setVelocityY(160);
         } else if (cursors.left.isDown) {
+            console.log(player.body.x, player.body.y);
             player.setVelocityX(-160);
         } else if (cursors.right.isDown) {
             player.setVelocityX(160);
@@ -359,7 +363,7 @@ function update(time, delta) {
             case 0:
                 break;
             case 1:
-                if (bossLife > 1) {
+                if (bossLife > 30) {
                     if (time - bossShotTime > 500) {
                         for (let i = 0; i < 3; i++) {
                             let bullet = bullets.create(boss.x, boss.y, "bullet");
@@ -373,6 +377,7 @@ function update(time, delta) {
                     }
                 } else {
                     if (bulletsSpawner == undefined) {
+                        this.cameras.main.shake(100000000, 0.005);
                         boss.setPosition(4800, 1400);
                         boss.body.setVelocityX(0);
                         boss.body.setVelocityY(0);
@@ -438,12 +443,14 @@ function weaponHitBoss(boss, weapon) {
 
     bossLife -= 1;
     score += 100;
+    console.log("bossLife:", bossLife);
     if (bossLife <= 0) {
         boss.disableBody(true, true);
         this.physics.pause();
 
         sounds.boss_bgm.stop();
         sounds.boss_dead.play();
+        // this.cameras.main.shake(100000000, 0.025);
 
         const explosion = this.add.sprite(boss.x, boss.y, 'exp').play('explosion', true);
         explosion.scaleX = 8.0;
@@ -452,6 +459,9 @@ function weaponHitBoss(boss, weapon) {
         this.time.addEvent({
             delay: 3000,
             callback: () => {
+                // shake stop
+                this.cameras.main.shakeEffect.reset();
+
                 sounds.clear.play();
 
                 score += 500000;
