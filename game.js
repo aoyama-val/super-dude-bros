@@ -116,6 +116,8 @@ var boss;
 var weapons;
 var bullets;
 var sky;
+var space;
+var isSpaceScrolling;
 
 var isGameOver = false;
 var isJumping = false;
@@ -140,6 +142,7 @@ function preload() {
     this.load.image('laser', 'assets/laser.png');
     this.load.image('bullet', 'assets/bullet.png');
     this.load.image('end', 'assets/end.png');
+    this.load.image('space', 'assets/deep-space.jpg');
     this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
     this.load.spritesheet('explosion', 'assets/explosion.png', { frameWidth: 32, frameHeight: 32 });
 
@@ -160,6 +163,8 @@ function create() {
 
     // create background
     sky = this.add.tileSprite(400, 300, 800, 600, 'sky');
+    space = this.add.tileSprite(256, 256, 512, 512, 'space').setScrollFactor(0);
+    space.visible = false;
 
     // create groups
     platforms = this.physics.add.staticGroup();
@@ -218,11 +223,11 @@ function create() {
     boss.setBounce(0.0, 1.0);
 
     // create player
-    player = this.physics.add.sprite(CELL_SIZE * 3.5, CELL_SIZE * 13 + 8, 'dude');
+    // player = this.physics.add.sprite(CELL_SIZE * 3.5, CELL_SIZE * 13 + 8, 'dude');
     // fall
     // player = this.physics.add.sprite(CELL_SIZE * 73.5, CELL_SIZE * 13 + 8, 'dude');
     // boss
-    // player = this.physics.add.sprite(CELL_SIZE * 135, CELL_SIZE * 13 + 8, 'dude');
+    player = this.physics.add.sprite(CELL_SIZE * 135, CELL_SIZE * 13 + 8, 'dude');
     player.setBounce(0.0);
     player.setCollideWorldBounds(true, undefined, undefined, true);
 
@@ -328,6 +333,9 @@ function update(time, delta) {
             sounds.boss_bgm.loop = true;
             sounds.boss_bgm.play();
 
+            space.visible = true;
+            isSpaceScrolling = true;
+
             // カメラ
             this.cameras.main.stopFollow();
             this.cameras.main.pan(4650, 1450);
@@ -343,6 +351,10 @@ function update(time, delta) {
             bossShotTime = time + 2500;  // 少し遅らせて撃ち始めるように
         }
     } else {
+        if (isSpaceScrolling) {
+            space.tilePositionX += 5;
+        }
+
         // ボスモード
         if (cursors.up.isDown) {
             player.setVelocityY(-160);
@@ -386,6 +398,7 @@ function update(time, delta) {
                     }
                 } else {
                     if (bulletsSpawner == undefined) {
+                        // space.visible = true;
                         this.cameras.main.shake(100000000, 0.005);
                         boss.setPosition(4800, 1400);
                         boss.body.setVelocityX(0);
@@ -467,6 +480,7 @@ function weaponHitBoss(boss, weapon) {
 
         sounds.boss_bgm.stop();
         sounds.boss_dead.play();
+        isSpaceScrolling = false;
         // this.cameras.main.shake(100000000, 0.025);
 
         const explosion = this.add.sprite(boss.x, boss.y, 'exp').play('explosion', true);
