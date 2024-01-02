@@ -310,7 +310,6 @@ function update(time, delta) {
                 jumpStartedTime = time;
             } else if (0 <= jumpStartedTime && (time - jumpStartedTime) <= 350) {
                 player.setVelocityY(player.body.velocity.y - 20 * (delta / 16.6));
-                jumpStartedTime += 1;
             }
         }
 
