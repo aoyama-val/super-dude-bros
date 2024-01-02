@@ -405,6 +405,14 @@ function update(time, delta) {
         if (bulletsSpawner != undefined) {
             bulletsSpawner.update();
         }
+
+        bullets.children.each((bullet) => {
+            debugger;
+            if (!this.cameras.main.worldView.contains(bullet.body.x, bullet.body.y)) {
+                bullet.destroy();
+            }
+        }, this);
+
     }
 }
 
