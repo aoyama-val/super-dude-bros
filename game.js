@@ -333,7 +333,7 @@ function update(time, delta) {
             sounds.boss_bgm.loop = true;
             sounds.boss_bgm.play();
 
-            space.visible = true;
+            // space.visible = true;
             isSpaceScrolling = true;
 
             // カメラ
