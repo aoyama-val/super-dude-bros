@@ -1,6 +1,6 @@
 const CELL_SIZE = 32;
 
-const PLAYER_JUMP_VELOCITY = -250;
+const PLAYER_JUMP_VELOCITY = -550;
 const GRAVITY = 1000;
 
 const BACK = [
@@ -118,7 +118,7 @@ var bullets;
 var sky;
 
 var isGameOver = false;
-var jumpStartedTime = -1;
+var isJumping = false;
 var shotTime = -1;
 var bossLife = 165;
 var bossShotTime = -1;
@@ -302,14 +302,19 @@ function update(time, delta) {
             player.setVelocityX(0);
         }
         if (player.body.touching.down) {
-            jumpStartedTime = -1;
+            isJumping = false;
         }
-        if (cursors.up.isDown) {
+        if (Phaser.Input.Keyboard.JustDown(cursors.up)) {
             if (player.body.touching.down) {
                 player.setVelocityY(PLAYER_JUMP_VELOCITY);
-                jumpStartedTime = time;
-            } else if (0 <= jumpStartedTime && (time - jumpStartedTime) <= 350) {
-                player.setVelocityY(player.body.velocity.y - 20 * (delta / 16.6));
+                isJumping = true;
+            }
+        } else if (!cursors.up.isDown) {
+            if (isJumping) {
+                // y方向速度を反転する方式だと、小ジャンプしたときの落ち方が速くなりすぎるので、0にする方がよい
+                player.setVelocityY(0);
+                // player.setVelocityY(-player.body.velocity.y);
+                isJumping = false;
             }
         }
 
