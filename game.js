@@ -502,6 +502,8 @@ function weaponHitBoss(boss, weapon) {
                     callback: () => {
                         // THE END
                         this.add.image(config.width / 2, config.height / 2, 'end').setScrollFactor(0);
+                        var effect = this.cameras.main.postFX.addColorMatrix();
+                        effect.grayscale(1, false);
                     }
                 });
             },
